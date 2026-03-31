@@ -71,18 +71,8 @@ jobs:
           WDS_Configuration: Debug
           WDS_Platform: x64
           WDS_WipeOutputs: ${{ true }}
-
-      - if: github.event_name != 'pull_request'
-        name: Build sample shard ${{ matrix.shard }} of 4
-        run: |
-          $totalShards = 4
-          $shardIndex  = ${{ matrix.shard }}
-          $allSamples  = .\ListAllSamples.ps1
-          $shardSize   = [Math]::Ceiling($allSamples.Count / $totalShards)
-          $start       = $shardIndex * $shardSize
-          $mySamples   = $allSamples | Select-Object -Skip $start -First $shardSize
-          Write-Output "Shard $shardIndex/$totalShards — building $($mySamples.Count) of $($allSamples.Count) samples (indices $start..$($start + $mySamples.Count - 1))"
-          .\Build-Samples.ps1 -Samples $mySamples -Verbose -ThrottleLimit 1
+      - if: github.event_name == 'push'
+        run: .\Build-Samples.ps1 -Verbose -ThrottleLimit 1
         env:
           WDS_Configuration: Debug
           WDS_Platform: x64
